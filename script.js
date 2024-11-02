@@ -69,7 +69,7 @@ const renderScene = () => {
         }
     }
 
-    context.font = "32px PixelArtFont";
+    context.font = "24px PixelArtFont";
 
     context.textAlign = "right";
     context.textBaseline = "top";
