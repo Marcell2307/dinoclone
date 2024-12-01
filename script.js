@@ -20,6 +20,9 @@ const loadAsset = (path) => {
     return asset;
 }
 
+const groundAsset = loadAsset("assets/background/ground.png");
+const cloudAsset = loadAsset("assets/background/cloud.png");
+
 const dinoAsset = loadAsset("assets/dino/dino.png");
 const dinoRunning1Asset = loadAsset("assets/dino/dino_running_1.png");
 const dinoRunning2Asset = loadAsset("assets/dino/dino_running_2.png");
@@ -43,6 +46,9 @@ let lastRunningPhaseSwitch = lastTime;
 let isRunning = true;
 let highScore;
 
+let groundOffset = 0;
+let cloudOffset = 0;
+
 let obstacles = [];
 
 const renderScene = () => {
@@ -51,6 +57,8 @@ const renderScene = () => {
     lastTime = currentTime;
 
     context.font = "24px PixelArtFont";
+
+    context.clearRect(0, 0, width, height);
 
     if(isRunning) {
         gameScreen(currentTime, deltaTime);
@@ -103,10 +111,13 @@ const gameScreen = (currentTime, deltaTime) => {
 
         lastRunningPhaseSwitch = currentTime;
     }
-    
-    context.clearRect(0, 0, width, height);
 
-    dinoVelocity -= 0.01 * deltaTime;
+    gravity = 0.01;
+    if(isDucking) {
+        gravity = 0.04;
+    }
+
+    dinoVelocity -= gravity * deltaTime;
     dinoPosition += dinoVelocity
     if (dinoPosition < 0) {
         dinoPosition = 0;
@@ -167,6 +178,7 @@ const gameScreen = (currentTime, deltaTime) => {
             }
 
             isRunning = false;
+            break;
         }
 
         if(obstacles[i].position < -bird1Asset.width) {
@@ -177,10 +189,21 @@ const gameScreen = (currentTime, deltaTime) => {
 
     score += deltaTime * 0.1;
 
-    context.moveTo(0, height - 50);
-    context.lineTo(width, height - 50);
-    context.strokeStyle = "#847f86";
-    context.stroke();
+    groundOffset -= deltaTime * 1;
+    cloudOffset -= deltaTime * 0.6;
+
+    if(groundOffset < -groundAsset.width && groundAsset.width) {
+        groundOffset += groundAsset.width;
+    }
+
+    if(cloudOffset < -width - cloudAsset.width) {
+        cloudOffset = width;
+    }
+
+    context.drawImage(groundAsset.image, groundOffset, height - 60, groundAsset.width, groundAsset.height);
+    context.drawImage(groundAsset.image, groundAsset.width + groundOffset, height - 60, groundAsset.width, groundAsset.height);
+
+    context.drawImage(cloudAsset.image, cloudOffset, 80, cloudAsset.width, cloudAsset.height);
 
     if(isDucking) {
         if(currentRunningState) {
@@ -207,7 +230,6 @@ const gameScreen = (currentTime, deltaTime) => {
 }
 
 const gameOverScreen = () => {
-    isRunning = false;
     context.clearRect(0, 0, width, height);
     context.textAlign = "center";
     context.textBaseline = "middle";
