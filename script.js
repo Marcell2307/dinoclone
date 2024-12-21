@@ -7,7 +7,16 @@ const height = canvas.height;
 const scaleFactor = 2;
 const obstaclesCount = 1;
 
-const loadAsset = (path) => {
+const lightColor = "#ffffff";
+const darkColor = "#847e87";
+
+// const userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+// const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const userTheme = "dark";
+
+canvas.style.borderColor = userTheme == 'dark' ? darkColor : lightColor
+
+const loadAsset = (path, extension) => {
     const asset = {};
     
     asset.image = new Image();
@@ -15,27 +24,25 @@ const loadAsset = (path) => {
         asset.width = asset.image.width / scaleFactor;
         asset.height = asset.image.height / scaleFactor;
     };
-    asset.image.src = path;
+    asset.image.src = `${path}_${(userTheme == 'dark'? "dark" : "light")}.${extension}`;
     
     return asset;
 }
 
-const groundAsset = loadAsset("assets/background/ground.png");
-const cloudAsset = loadAsset("assets/background/cloud.png");
+const groundAsset = loadAsset("assets/background/ground", "png");
+const cloudAsset = loadAsset("assets/background/cloud", "png");
 
-const dinoAsset = loadAsset("assets/dino/dino.png");
-const dinoRunning1Asset = loadAsset("assets/dino/dino_running_1.png");
-const dinoRunning2Asset = loadAsset("assets/dino/dino_running_2.png");
+const dinoAsset = loadAsset("assets/dino/dino", "png");
+const dinoRunning1Asset = loadAsset("assets/dino/dino_running_1", "png");
+const dinoRunning2Asset = loadAsset("assets/dino/dino_running_2", "png");
 
-const dinoDucking1Asset = loadAsset("assets/dino/dino_ducking_1.png");
-const dinoDucking2Asset = loadAsset("assets/dino/dino_ducking_2.png");
+const dinoDucking1Asset = loadAsset("assets/dino/dino_ducking_1", "png");
+const dinoDucking2Asset = loadAsset("assets/dino/dino_ducking_2", "png");
 
-const bird1Asset = loadAsset("assets/bird/bird_1.png");
-const bird2Asset = loadAsset("assets/bird/bird_2.png");
-const cactus1Asset = loadAsset("assets/cactus/cactus_1.png");
-const cactus2Asset = loadAsset("assets/cactus/cactus_2.png");
-
-const userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const bird1Asset = loadAsset("assets/bird/bird_1", "png");
+const bird2Asset = loadAsset("assets/bird/bird_2", "png");
+const cactus1Asset = loadAsset("assets/cactus/cactus_1", "png");
+const cactus2Asset = loadAsset("assets/cactus/cactus_2", "png");
 
 let dinoPosition = 0;
 let dinoVelocity = 0;
@@ -60,9 +67,12 @@ const renderScene = () => {
 
     context.font = "24px PixelArtFont";
 
-    context.filter = "invert(1)";
-
-    context.fillStyle = "white";
+    if(userTheme == 'dark') {
+        context.fillStyle = darkColor;
+    } else {
+        context.fillStyle = lightColor;
+    }
+    
     context.fillRect(0, 0, width, height);
 
     if(isRunning) {
@@ -84,9 +94,9 @@ const init = () => {
     
     const body = document.body;
     if (userTheme == "dark") {
-        body.style.backgroundColor = "black";
+        body.style.backgroundColor = darkColor;
     } else {
-        body.style.backgroundColor = "white";
+        body.style.backgroundColor = lightColor;
     }
 
     highScore = localStorage.getItem("highScore");
@@ -184,9 +194,16 @@ const gameScreen = (currentTime, deltaTime) => {
         
         if(isColliding) {
             const personalBest = localStorage.getItem("highScore");
+            gameOverScreen()
+
+            var confettiSettings = { target: 'canvas' };
+            var confetti = new ConfettiGenerator(confettiSettings);
+            confetti.render();
+
             if(score > personalBest) {
                 highScore = score;
                 localStorage.setItem("highScore", score);
+
             }
 
             isRunning = false;
@@ -237,10 +254,9 @@ const gameScreen = (currentTime, deltaTime) => {
 
     context.textAlign = "right";
     context.textBaseline = "top";
-    //FIXME:
-    if (userTheme == "dark") {
-        context.fillStyle = "black"
-    }
+
+    context.fillStyle = userTheme == "dark" ? lightColor : darkColor;
+    
     context.fillText(Math.floor(score), width - 5, 5);
     context.fillText(Math.floor(highScore), width - 5, 29);
 }
@@ -249,9 +265,7 @@ const gameOverScreen = () => {
     context.textAlign = "center";
     context.textBaseline = "middle";
     //FIXME:
-    if (userTheme == "dark") {
-        context.fillStyle = "black"
-    }
+    context.fillStyle = userTheme == "dark" ? lightColor : darkColor
     context.fillText("Game over! Your score is " + Math.floor(score), width / 2, height / 2);
     context.stroke();
 }
