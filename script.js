@@ -10,11 +10,10 @@ const obstaclesCount = 1;
 const lightColor = "#ffffff";
 const darkColor = "#847e87";
 
-// const userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+let userTheme = Math.random() > 0.5 ? 'dark' : 'light';
+// let userTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 // const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-const userTheme = "dark";
-
-canvas.style.borderColor = userTheme == 'dark' ? darkColor : lightColor
+// const userTheme = "light";
 
 const loadAsset = (path, extension) => {
     const asset = {};
@@ -61,6 +60,8 @@ let cloudOffset = 0;
 let obstacles = [];
 
 const renderScene = () => {
+    canvas.style.borderColor = userTheme == 'dark' ? darkColor : lightColor
+
     let currentTime = Date.now();
     let deltaTime = currentTime - lastTime;
     lastTime = currentTime;
@@ -194,16 +195,22 @@ const gameScreen = (currentTime, deltaTime) => {
         
         if(isColliding) {
             const personalBest = localStorage.getItem("highScore");
-            gameOverScreen()
+            gameOverScreen();
 
-            var confettiSettings = { target: 'canvas' };
-            var confetti = new ConfettiGenerator(confettiSettings);
-            confetti.render();
-
+            
             if(score > personalBest) {
                 highScore = score;
                 localStorage.setItem("highScore", score);
 
+                confetti({
+                    particleCount: 200,
+                    startVelocity: 30,
+                    spread: 720,
+                    origin: {
+                        x: 0.5,
+                        y: 0.5
+                    }
+                });
             }
 
             isRunning = false;
@@ -264,7 +271,6 @@ const gameOverScreen = () => {
     context.clearRect(0, 0, width, height);
     context.textAlign = "center";
     context.textBaseline = "middle";
-    //FIXME:
     context.fillStyle = userTheme == "dark" ? lightColor : darkColor
     context.fillText("Game over! Your score is " + Math.floor(score), width / 2, height / 2);
     context.stroke();
