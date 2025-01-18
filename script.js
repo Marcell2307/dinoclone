@@ -113,7 +113,7 @@ document.addEventListener("keydown", (e) => {
     if(e.code == "Space" || e.code == "ArrowUp") {
         if(isRunning) {
             if(dinoPosition == 0) {
-                dinoVelocity = 1.5;
+                dinoVelocity = 1.35;
             }
         } else {
             score = 0;
