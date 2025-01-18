@@ -113,7 +113,7 @@ document.addEventListener("keydown", (e) => {
     if(e.code == "Space" || e.code == "ArrowUp") {
         if(isRunning) {
             if(dinoPosition == 0) {
-                dinoVelocity = 4.0;
+                dinoVelocity = 1.5;
             }
         } else {
             score = 0;
@@ -135,13 +135,13 @@ const gameScreen = (currentTime, deltaTime) => {
         lastRunningPhaseSwitch = currentTime;
     }
 
-    gravity = 0.01;
+    gravity = 0.005;
     if(isDucking) {
-        gravity = 0.04;
+        gravity = 0.020;
     }
 
     dinoVelocity -= gravity * deltaTime;
-    dinoPosition += dinoVelocity
+    dinoPosition += dinoVelocity * deltaTime;
     if (dinoPosition < 0) {
         dinoPosition = 0;
         dinoVelocity = 0;
